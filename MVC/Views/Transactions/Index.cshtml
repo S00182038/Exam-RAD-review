@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "Transactions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Transactions</h2>
+
+<div class="container-fluid">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="customerName">Customer Name</label>
+            @Html.DropDownList("Customer Name", (IEnumerable<SelectListItem>) ViewBag.CustomerNames, new { @class = "form-control", @id = "customerName" })
+        </div>
+
+        <div class="form-group" id="accountTypes">
+            <label for="accountName">Account Name</label>
+        </div>
+    </form>
+</div>
+
+<div id="tableOfTransactions"></div>
+
+@section Scripts{
+    <script type="text/javascript">
+        // Setting up method when the page loads in.
+        $(document).ready(() => {
+            //At the beginning we request transactions for first account of the first user in order to have an initial view
+            getAccountNamesAndTransactions();
+
+            //Once the customer name changes, we request it's first account transactions in the database.
+            $(document).on('change', '#customerName', () => {
+                getAccountNamesAndTransactions();
+            });
+
+            //Once the account name changes we request transactions for that account
+            $(document).on('change', '#accountName', () => {
+                getTransactions();
+            });
+
+            //Get transactions method which get the transactions partial view and puts it as a table
+            function getTransactions() {
+                var accountId = $('#accountName').val();
+                $.ajax({
+                    url: '@Url.Action("_GetTransactions", "Transactions")',
+                    type: 'GET',
+                    data: { accountId },
+                    cache: false,
+                    success: (result) => {
+                        $('#tableOfTransactions').html(result);
+                    }
+                })
+            }
+
+            //This method calls the ajax method to give back a dropdown box with account names.
+            function getAccountNamesAndTransactions() {
+                var customerId = $('#customerName').val();
+                $.ajax({
+                url: '@Url.Action("_AccountNames", "Transactions")',
+                type: 'GET',
+                data: { customerId: customerId },
+                cache: false,
+                success: (result => {
+                    $("#accountTypes").html(result);
+                    getTransactions();
+                    })              
+                })
+            }
+        })
+      
+    </script>   
+ }

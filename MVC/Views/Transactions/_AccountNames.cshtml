@@ -1,0 +1,5 @@
+﻿@{
+
+}
+<label for="accountName">Account Names</label>
+@Html.DropDownList("Account Names", (IEnumerable<SelectListItem>)ViewBag.AccountNames, new { @class = "form-control", @id = "accountName" })
